@@ -1088,9 +1088,7 @@ prob_ft =
 sol_ft =
     solve(
         prob_ft,
-        RadauIIA5(
-            autodiff = false
-        );
+Tsit5();
 
         reltol = 1e-9,
         abstol = 1e-11,
@@ -1417,9 +1415,7 @@ The finite-time-observer-based closed loop with $\widetilde u_1$:
 sol_ft_ut =
     solve(
         prob_ft,
-        RadauIIA5(
-            autodiff = false
-        );
+     Tsit5();
 
         reltol = 1e-9,
         abstol = 1e-11,
