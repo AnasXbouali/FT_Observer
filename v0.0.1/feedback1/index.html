@@ -1,0 +1,1632 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Feedback 1 · FT_Observer.jl</title><meta name="title" content="Feedback 1 · FT_Observer.jl"/><meta property="og:title" content="Feedback 1 · FT_Observer.jl"/><meta property="twitter:title" content="Feedback 1 · FT_Observer.jl"/><meta name="description" content="Documentation for FT_Observer.jl."/><meta property="og:description" content="Documentation for FT_Observer.jl."/><meta property="twitter:description" content="Documentation for FT_Observer.jl."/><script data-outdated-warner src="../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../search_index.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-mocha.css" data-theme-name="catppuccin-mocha"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-macchiato.css" data-theme-name="catppuccin-macchiato"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-frappe.css" data-theme-name="catppuccin-frappe"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/catppuccin-latte.css" data-theme-name="catppuccin-latte"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../">FT_Observer.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Feedback 1</a><ul class="internal"><li><a class="tocitem" href="#Feedback-laws"><span>Feedback laws</span></a></li><li class="toplevel"><a class="tocitem" href="#Reference-trajectory"><span>Reference trajectory</span></a></li><li class="toplevel"><a class="tocitem" href="#Extended-Kalman-Filter"><span>Extended Kalman Filter</span></a></li><li class="toplevel"><a class="tocitem" href="#Finite-time-observer"><span>Finite-time observer</span></a></li><li><a class="tocitem" href="#FT-Observer-parameters"><span>FT Observer parameters</span></a></li><li class="toplevel"><a class="tocitem" href="#Performance-indicators"><span>Performance indicators</span></a></li><li class="toplevel"><a class="tocitem" href="#Closed-loop-with-the-modified-law"><span>Closed loop with the modified law</span></a></li><li class="toplevel"><a class="tocitem" href="#Numerical-comparison"><span>Numerical comparison</span></a></li></ul></li><li><a class="tocitem" href="../feedback2/">Feedback 2</a></li><li><a class="tocitem" href="../feedback3/">Feedback 3</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Feedback 1</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Feedback 1</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/AnasXbouali/FT_Observer" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/AnasXbouali/FT_Observer/blob/main/docs/src/feedback1.md" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Feedback-1"><a class="docs-heading-anchor" href="#Feedback-1">Feedback 1</a><a id="Feedback-1-1"></a><a class="docs-heading-anchor-permalink" href="#Feedback-1" title="Permalink"></a></h1><pre><code class="language-julia hljs">using DifferentialEquations
+using OrdinaryDiffEq
+using LinearAlgebra
+using Random
+using Plots
+using LaTeXStrings
+using Colors
+
+include(&quot;common.jl&quot;)
+
+default(fontfamily = &quot;Computer Modern&quot;, framestyle = :box)</code></pre><pre><code class="language-julia hljs">β       = 0.8
+γ       = 0.2
+S0      = 0.92
+I0      = 0.04
+Qbudget = 16.0
+tf      = 100.0
+nothing</code></pre><p>The herd-immunity threshold is</p><p class="math-container">\[S_h=\frac{\gamma}{\beta}.\]</p><pre><code class="language-julia hljs">Sh = γ / β</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">0.25</code></pre><h3 id="Target-infection-level"><a class="docs-heading-anchor" href="#Target-infection-level">Target infection level</a><a id="Target-infection-level-1"></a><a class="docs-heading-anchor-permalink" href="#Target-infection-level" title="Permalink"></a></h3><p>The target infection level is computed from the estimated initial conditions <span>$(\hat\theta_1,\hat\theta_2)$</span>.</p><p>Define</p><p class="math-container">\[I_h
+=
+\hat\theta_2+\hat\theta_1-S_h
+-S_h\log\left(\frac{\hat\theta_1}{S_h}\right).\]</p><p>The corresponding critical intervention budget is</p><p class="math-container">\[Q_{\mathrm{crit}}
+=
+\frac{I_h-\hat\theta_2}
+{\beta S_h\hat\theta_2}.\]</p><p>The target value <span>$I^\star$</span> is therefore defined by</p><p class="math-container">\[I^\star=
+\begin{cases}
+\dfrac{I_h}{1+\beta S_hQ},
+&amp;
+Q&lt;Q_{\mathrm{crit}},\\[2mm]
+\hat\theta_2,
+&amp;
+Q\geq Q_{\mathrm{crit}}.
+\end{cases}\]</p><pre><code class="language-julia hljs">function ISTAR(θ̂1::Real, θ̂2::Real)
+    Ih = θ̂2 + θ̂1 - Sh - Sh * log(θ̂1 / Sh)
+
+    Qcrit =
+        (Ih - θ̂2) /
+        (β * Sh * max(θ̂2, 1e-12))
+
+    return Qbudget &lt; Qcrit ?
+           Ih / (1.0 + β * Sh * Qbudget) :
+           θ̂2
+end
+
+Ibar = ISTAR(S0, I0)
+nothing</code></pre><h2 id="Feedback-laws"><a class="docs-heading-anchor" href="#Feedback-laws">Feedback laws</a><a id="Feedback-laws-1"></a><a class="docs-heading-anchor-permalink" href="#Feedback-laws" title="Permalink"></a></h2><p>Two feedback laws are considered.</p><p>The first one is the NSN feedback control with threshold computed from estimated initial conditions:</p><p class="math-container">\[u_{1}(\hat I,\hat S,\hat\theta_1,\hat\theta_2):=
+\begin{cases}
+1-\dfrac{S_h}{\hat S},
+&amp; \text{if } \hat I \geq I^*(\hat\theta_1,\hat\theta_2,Q) \text{ and } \hat S&gt;S_h,\\[6pt]
+0, &amp; \text{otherwise}.
+\end{cases}\]</p><p>where the target infection level <span>$I^*$</span> is computed from the estimated initial conditions <span>$(\hat\theta_1,\hat\theta_2)$</span> as described in the previous section.</p><p>The second feedback is a modified version with an additional multiplicative term:</p><p class="math-container">\[\widetilde u_{1}(\hat I,\hat S,\hat\theta_1,\hat\theta_2):=
+\begin{cases}
+1-\dfrac{S_h}{\hat S}\dfrac{I^*(\hat\theta_1,\hat\theta_2,Q)}{\hat I},
+&amp; \begin{aligned}
+  \text{if } \hat I \geq I^*(\hat\theta_1,\hat\theta_2,Q) \\
+  \text{and } \hat S &gt; S_h,
+\end{aligned} \\[8pt]
+0, &amp; \text{otherwise}.
+\end{cases}\]</p><p>The additional term <span>$I^*/\hat I$</span> in <span>$\widetilde u_1$</span> amplifies the control value when <span>$\hat I$</span> exceeds the threshold, forcing the infected trajectory to remain closer to the optimal level <span>$I^*(S_0,I_0,Q)$</span> while consuming more budget.</p><pre><code class="language-julia hljs">safe_ = 1e-10
+
+@inline incidence(S, I, u) =
+    β * S * I * (1.0 - u)
+
+CONTROL_LAW = :u1</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">:u1</code></pre><p>Possible values for <code>CONTROL_LAW</code>:</p><ul><li><code>:u1</code></li><li><code>:u1_tilde</code></li></ul><pre><code class="language-julia hljs">u1_exact(Ŝ, Î, Istar) =
+    (Ŝ ≤ Sh || Î &lt; Istar) ?
+    0.0 :
+    1.0 - Sh / Ŝ
+
+u1_tilde_exact(Ŝ, Î, Istar) =
+    (Ŝ ≤ Sh || Î &lt; Istar) ?
+    0.0 :
+    1.0 - (Sh / Ŝ) * (Istar / Î)
+
+ft_control(Ŝ, Î, Istar) =
+    CONTROL_LAW === :u1 ?
+    u1_exact(Ŝ, Î, Istar) :
+    u1_tilde_exact(Ŝ, Î, Istar)
+    nothing</code></pre><h3 id="Smooth-control-used-for-the-EKF"><a class="docs-heading-anchor" href="#Smooth-control-used-for-the-EKF">Smooth control used for the EKF</a><a id="Smooth-control-used-for-the-EKF-1"></a><a class="docs-heading-anchor-permalink" href="#Smooth-control-used-for-the-EKF" title="Permalink"></a></h3><p>For the Extended Kalman Filter simulation, the discontinuous switching conditions are regularized.</p><p>We introduce</p><p class="math-container">\[\sigma_\varepsilon(z)
+=
+\frac12
+\left(
+1+\tanh\left(\frac{z}{\varepsilon}\right)
+\right).\]</p><pre><code class="language-julia hljs">ϵcontrol = 1e-6
+
+@inline function sigmoid_stable(z, ϵ)
+
+    r = z / ϵ
+
+    if r &lt;= -40.0
+        return 0.0
+    elseif r &gt;= 40.0
+        return 1.0
+    else
+        return 0.5 * (1.0 + tanh(r))
+    end
+end
+nothing</code></pre><p>For <span>$u_1$</span>,</p><pre><code class="language-julia hljs">function nsn_u1(Ŝ, Î)
+
+    Ssafe = max(Ŝ, safe_)
+
+    σI = sigmoid_stable(
+        Î - Ibar,
+        ϵcontrol
+    )
+
+    σS = sigmoid_stable(
+        Ssafe - Sh,
+        ϵcontrol
+    )
+
+    return clamp(
+        (1.0 - Sh / Ssafe) *
+        σI *
+        σS,
+        0.0,
+        1.0
+    )
+end
+nothing</code></pre><p>For <span>$\widetilde u_1$</span>,</p><pre><code class="language-julia hljs">function nsn_u1_tilde(Ŝ, Î)
+
+    Ssafe = max(Ŝ, safe_)
+    Isafe = max(Î, safe_)
+
+    σI = sigmoid_stable(
+        Î - Ibar,
+        ϵcontrol
+    )
+
+    σS = sigmoid_stable(
+        Ssafe - Sh,
+        ϵcontrol
+    )
+
+    return clamp(
+        (1.0 - Sh / Ssafe) *
+        (Ibar / Isafe) *
+        σI *
+        σS,
+        0.0,
+        1.0
+    )
+end
+
+nsn_control(Ŝ, Î) =
+    CONTROL_LAW === :u1 ?
+    nsn_u1(Ŝ, Î) :
+    nsn_u1_tilde(Ŝ, Î)
+    nothing</code></pre><h1 id="Reference-trajectory"><a class="docs-heading-anchor" href="#Reference-trajectory">Reference trajectory</a><a id="Reference-trajectory-1"></a><a class="docs-heading-anchor-permalink" href="#Reference-trajectory" title="Permalink"></a></h1><p>The reference solution is divided into three phases.</p><h3 id="Phase-1-—-Uncontrolled-epidemic"><a class="docs-heading-anchor" href="#Phase-1-—-Uncontrolled-epidemic">Phase 1 — Uncontrolled epidemic</a><a id="Phase-1-—-Uncontrolled-epidemic-1"></a><a class="docs-heading-anchor-permalink" href="#Phase-1-—-Uncontrolled-epidemic" title="Permalink"></a></h3><p>Initially,</p><p class="math-container">\[u(t)=0.\]</p><p>The system therefore evolves according to</p><p class="math-container">\[\begin{aligned}
+\dot S &amp;= -\beta SI,\\
+\dot I &amp;= \beta SI-\gamma I.
+\end{aligned}\]</p><p>until the infection reaches the prescribed level <span>$I^\star$</span>.</p><pre><code class="language-julia hljs">tgrid = 0.0:0.05:tf
+
+cb1 =
+    ContinuousCallback(
+        (v, t, integrator) -&gt;
+            v[2] - Ibar,
+        terminate!
+    )
+
+sol1 = solve(
+    ODEProblem(
+        (dv, v, p, t) -&gt; begin
+
+            y = β * v[1] * v[2]
+
+            dv[1] = -y
+            dv[2] =  y - γ * v[2]
+            dv[3] =  0.0
+
+        end,
+
+        [S0, I0, Qbudget],
+        (0.0, tf)
+    ),
+
+    saveat = tgrid,
+    callback = cb1,
+    reltol = 1e-8,
+    abstol = 1e-8
+)
+nothing</code></pre><h3 id="Phase-2-—-Intervention-arc"><a class="docs-heading-anchor" href="#Phase-2-—-Intervention-arc">Phase 2 — Intervention arc</a><a id="Phase-2-—-Intervention-arc-1"></a><a class="docs-heading-anchor-permalink" href="#Phase-2-—-Intervention-arc" title="Permalink"></a></h3><p>Once <span>$I=I^\star$</span>, the feedback</p><p class="math-container">\[u(t)=1-\frac{S_h}{S(t)}\]</p><p>is applied.</p><p>The budget variable satisfies</p><p class="math-container">\[\dot C(t)=-u(t).\]</p><p>The intervention ends either when the budget is exhausted or when <span>$S=S_h$</span>.</p><pre><code class="language-julia hljs">cb2_C =
+    ContinuousCallback(
+        (v, t, integrator) -&gt; v[3],
+        terminate!
+    )
+
+cb2_S =
+    ContinuousCallback(
+        (v, t, integrator) -&gt;
+            v[1] - Sh,
+        nothing,
+        terminate!
+    )
+
+cb2 = CallbackSet(cb2_C, cb2_S)
+
+sol2 = solve(
+    ODEProblem(
+        (dv, v, p, t) -&gt; begin
+
+            S, I, C =
+                v[1], v[2], v[3]
+
+            u = 1.0 - Sh / S
+
+            y = β * S * I
+
+            dv[1] = -y * (1 - u)
+            dv[2] =  y * (1 - u) - γ * I
+            dv[3] = -u
+
+        end,
+
+        sol1.u[end],
+        (sol1.t[end], tf)
+    ),
+
+    saveat = tgrid,
+    callback = cb2,
+    reltol = 1e-8,
+    abstol = 1e-8
+)
+nothing</code></pre><h3 id="Phase-3-—-Final-uncontrolled-trajectory"><a class="docs-heading-anchor" href="#Phase-3-—-Final-uncontrolled-trajectory">Phase 3 — Final uncontrolled trajectory</a><a id="Phase-3-—-Final-uncontrolled-trajectory-1"></a><a class="docs-heading-anchor-permalink" href="#Phase-3-—-Final-uncontrolled-trajectory" title="Permalink"></a></h3><p>After the controlled phase,</p><p class="math-container">\[u(t)=0\]</p><p>again.</p><pre><code class="language-julia hljs">sol3 = solve(
+    ODEProblem(
+        (dv, v, p, t) -&gt; begin
+
+            y = β * v[1] * v[2]
+
+            dv[1] = -y
+            dv[2] =  y - γ * v[2]
+            dv[3] =  0.0
+
+        end,
+
+        sol2.u[end],
+        (sol2.t[end], tf)
+    ),
+
+    saveat = tgrid,
+    reltol = 1e-8,
+    abstol = 1e-8
+)
+nothing</code></pre><p>The three phases are concatenated as follows:</p><pre><code class="language-julia hljs">t_ref = [
+    sol1.t;
+    sol2.t[2:end];
+    sol3.t[2:end]
+]
+
+S_ref = [
+    sol1[1, :];
+    sol2[1, 2:end];
+    sol3[1, 2:end]
+]
+
+I_ref = [
+    sol1[2, :];
+    sol2[2, 2:end];
+    sol3[2, 2:end]
+]
+
+C_ref = [
+    sol1[3, :];
+    sol2[3, 2:end];
+    sol3[3, 2:end]
+]
+
+n1 = length(sol1.t)
+n2 = length(sol2.t) - 1
+n3 = length(sol3.t) - 1
+
+u_ref = [
+    zeros(n1);
+    1.0 .- Sh ./ S_ref[n1+1:n1+n2];
+    zeros(n3)
+]
+nothing</code></pre><h1 id="Extended-Kalman-Filter"><a class="docs-heading-anchor" href="#Extended-Kalman-Filter">Extended Kalman Filter</a><a id="Extended-Kalman-Filter-1"></a><a class="docs-heading-anchor-permalink" href="#Extended-Kalman-Filter" title="Permalink"></a></h1><p>We next compare the finite-time observer with a continuous-time Extended Kalman Filter.</p><p>Let</p><p class="math-container">\[x=
+\begin{pmatrix}
+S\\
+I
+\end{pmatrix}.\]</p><p>The measured quantity is the epidemic incidence</p><p class="math-container">\[h(x,u)
+=
+\beta SI(1-u).\]</p><p>The EKF is written as</p><p class="math-container">\[\dot{\hat x}
+=
+f(\hat x,u)
++
+PH^\top R^{-1}
+\left(
+y-h(\hat x,u)
+\right),\]</p><p>with covariance equation</p><p class="math-container">\[\dot P
+=
+AP+PA^\top
+-
+PH^\top R^{-1}HP
++
+Q.\]</p><h3 id="EKF-parameters"><a class="docs-heading-anchor" href="#EKF-parameters">EKF parameters</a><a id="EKF-parameters-1"></a><a class="docs-heading-anchor-permalink" href="#EKF-parameters" title="Permalink"></a></h3><pre><code class="language-julia hljs">R =
+    1e-4
+
+Qproc =
+    Matrix(
+        Diagonal(
+            [1e-2, 1e-2]
+        )
+    )
+
+P0 =
+    Matrix(
+        Diagonal(
+            [1e-2, 1e-2]
+        )
+    )
+
+Ŝ0, Î0 =
+    1.0, 0.0
+
+meas_noise_amp =
+    0.1
+    nothing</code></pre><h3 id="Measurement-noise"><a class="docs-heading-anchor" href="#Measurement-noise">Measurement noise</a><a id="Measurement-noise-1"></a><a class="docs-heading-anchor-permalink" href="#Measurement-noise" title="Permalink"></a></h3><p>A deterministic multi-frequency signal is used to generate the measurement perturbation.</p><pre><code class="language-julia hljs">const NOISE_W =
+    (
+        0.17,
+        0.41,
+        0.93,
+        2.13,
+        3.71,
+        7.29,
+        11.93,
+        19.07
+    )
+
+const NOISE_P =
+    (
+        0.00,
+        1.13,
+        2.47,
+        0.62,
+        4.01,
+        5.28,
+        1.97,
+        3.55
+    )
+
+@inline function meas_noise(t)
+
+    s = 0.0
+
+    @inbounds for k in eachindex(NOISE_W)
+
+        s += sin(
+            NOISE_W[k] * t +
+            NOISE_P[k]
+        )
+
+    end
+
+    return meas_noise_amp *
+           sqrt(2.0 / length(NOISE_W)) *
+           s
+end
+nothing</code></pre><p>The noisy measurement is</p><p class="math-container">\[y(t)
+=
+\beta S(t)I(t)
+(1-u(t))
+\left(
+1+\nu(t)
+\right).\]</p><h3 id="EKF-dynamics"><a class="docs-heading-anchor" href="#EKF-dynamics">EKF dynamics</a><a id="EKF-dynamics-1"></a><a class="docs-heading-anchor-permalink" href="#EKF-dynamics" title="Permalink"></a></h3><pre><code class="language-julia hljs">function ekf_rhs!(dz, z, _, t)
+
+    S =
+        z[1]
+
+    I =
+        z[2]
+
+    Ŝ =
+        z[3]
+
+    Î =
+        z[4]
+
+    C_hat =
+        z[9]
+
+    P =
+        reshape(
+            @view(z[5:8]),
+            2,
+            2
+        )
+
+    u_raw =
+        nsn_control(Ŝ, Î)
+
+    u =
+        C_hat &gt; 0.0 ?
+        u_raw :
+        0.0
+
+    h_true =
+        incidence(S, I, u)
+
+    dS =
+        -h_true
+
+    dI =
+        h_true - γ * I
+
+    y =
+        h_true *
+        (1.0 + meas_noise(t))
+
+    S_eval =
+        max(Ŝ, safe_)
+
+    I_eval =
+        max(Î, safe_)
+
+    h_hat =
+        incidence(
+            S_eval,
+            I_eval,
+            u
+        )
+
+    innovation =
+        y - h_hat
+
+    A = [
+        -β * I_eval * (1.0 - u)    -β * S_eval * (1.0 - u);
+         β * I_eval * (1.0 - u)     β * S_eval * (1.0 - u) - γ
+    ]
+
+    H = [
+        β * I_eval * (1.0 - u)     β * S_eval * (1.0 - u)
+    ]
+
+    K =
+        (P * H&#39;) / R
+
+    f_hat = [
+        -β * S_eval * I_eval * (1.0 - u),
+
+         β * S_eval * I_eval * (1.0 - u) -
+         γ * I_eval
+    ]
+
+    d_hat =
+        f_hat +
+        vec(K) * innovation
+
+    if Ŝ &lt;= safe_ &amp;&amp;
+       d_hat[1] &lt; 0.0
+
+        d_hat[1] = 0.0
+    end
+
+    if Î &lt;= 0.0 &amp;&amp;
+       d_hat[2] &lt; 0.0
+
+        d_hat[2] = 0.0
+    end
+
+    dP =
+        A * P +
+        P * A&#39; -
+        (P * H&#39; * H * P) / R +
+        Qproc
+
+    dz[1] = dS
+    dz[2] = dI
+
+    dz[3] = d_hat[1]
+    dz[4] = d_hat[2]
+
+    dz[5:8] .= vec(dP)
+
+    dz[9] = -u
+
+    return nothing
+end
+nothing</code></pre><p>The intervention is disabled after budget exhaustion:</p><pre><code class="language-julia hljs">cb_budget_ekf =
+    ContinuousCallback(
+        (z, t, integrator) -&gt;
+            z[9],
+
+        integrator -&gt;
+            (integrator.u[9] = 0.0)
+    )
+    nothing</code></pre><p>The complete EKF simulation is</p><pre><code class="language-julia hljs">z0_ekf = [
+    S0,
+    I0,
+    Ŝ0,
+    Î0,
+    vec(P0)...,
+    Qbudget
+]
+
+prob_ekf =
+    ODEProblem(
+        ekf_rhs!,
+        z0_ekf,
+        (0.0, tf)
+    )
+
+sol_ekf =
+    solve(
+        prob_ekf,
+        AutoTsit5(
+            Rosenbrock23()
+        );
+
+        dt = 1e-4,
+        dtmax = 5e-3,
+
+        reltol = 1e-6,
+        abstol = 1e-6,
+
+        saveat = 0.05,
+
+        maxiters = 10^6,
+
+        callback =
+            cb_budget_ekf
+    )
+    nothing</code></pre><p>The resulting trajectories are extracted using</p><pre><code class="language-julia hljs">t_ekf =
+    sol_ekf.t
+
+S_ekf =
+    [z[1] for z in sol_ekf.u]
+
+I_ekf =
+    [z[2] for z in sol_ekf.u]
+
+Shat_ekf =
+    [z[3] for z in sol_ekf.u]
+
+Ihat_ekf =
+    [z[4] for z in sol_ekf.u]
+
+C_ekf =
+    [z[9] for z in sol_ekf.u]
+
+u_ekf =
+    ifelse.(
+        C_ekf .&gt; 0.0,
+        nsn_control.(
+            Shat_ekf,
+            Ihat_ekf
+        ),
+        0.0
+    )
+
+e_S_ekf =
+    abs.(
+        S_ekf .-
+        Shat_ekf
+    )
+
+e_I_ekf =
+    abs.(
+        I_ekf .-
+        Ihat_ekf
+    )
+    nothing</code></pre><h1 id="Finite-time-observer"><a class="docs-heading-anchor" href="#Finite-time-observer">Finite-time observer</a><a id="Finite-time-observer-1"></a><a class="docs-heading-anchor-permalink" href="#Finite-time-observer" title="Permalink"></a></h1><p>We now use a finite-time parameter estimator based on Dynamic Regressor Extension and Mixing (DREM).</p><p>The transformed states are reconstructed according to</p><p class="math-container">\[\hat S
+=
+\hat\theta_1+\chi_1,\]</p><p>and</p><p class="math-container">\[\hat I
+=
+\chi_2+
+e^{-\gamma t}
+\hat\theta_2.\]</p><h2 id="FT-Observer-parameters"><a class="docs-heading-anchor" href="#FT-Observer-parameters">FT Observer parameters</a><a id="FT-Observer-parameters-1"></a><a class="docs-heading-anchor-permalink" href="#FT-Observer-parameters" title="Permalink"></a></h2><pre><code class="language-julia hljs">λ_id = 1e-4
+
+ρ_id = 1e6
+
+α_id = 0.3
+
+ε_id = 1e-6
+
+Ŝ0_ft = 1.0
+
+Î0_ft = 0.0
+
+Y0 = β * S0 * I0
+nothing</code></pre><h3 id="DREM-dynamics"><a class="docs-heading-anchor" href="#DREM-dynamics">DREM dynamics</a><a id="DREM-dynamics-1"></a><a class="docs-heading-anchor-permalink" href="#DREM-dynamics" title="Permalink"></a></h3><p>Let</p><p class="math-container">\[\psi_1
+=
+(1-u)\beta\chi_2,\]</p><p>and</p><p class="math-container">\[\psi_2
+=
+(1-u)\beta e^{-\gamma t}\chi_1.\]</p><p>The filtered regression variables generate the determinant</p><p class="math-container">\[\Delta
+=
+\Omega_{11}\Omega_{22}
+-
+\Omega_{12}\Omega_{21}.\]</p><p>The finite-time parameter estimator has the structure</p><p class="math-container">\[\dot{\hat\theta}_i
+=
+\rho
+\Delta
+\frac{
+Y_i-\Delta\hat\theta_i
+}{
+\left|
+Y_i-\Delta\hat\theta_i
+\right|^{1-\alpha}
++
+\varepsilon
+}.\]</p><p>The complete implementation is</p><pre><code class="language-julia hljs">function sir_drem!(dv, v, p, t)
+
+    egt =
+        exp(-γ * t)
+
+    Ŝ =
+        v[11] +
+        v[3]
+
+    Î =
+        v[4] +
+        egt * v[12]
+
+    Î_star =
+        ISTAR(
+            v[11],
+            v[12]
+        )
+
+    u_raw =
+        ft_control(
+            Ŝ,
+            Î,
+            Î_star
+        )
+
+    u =
+        v[13] &gt; 0.0 ?
+        u_raw :
+        0.0
+
+    y =
+        β *
+        v[1] *
+        v[2] *
+        (1.0 - u)
+
+    dv[1] =
+        -y
+
+    dv[2] =
+        y -
+        γ * v[2]
+
+    dv[3] =
+        -y
+
+    dv[4] =
+        -γ * v[4] +
+        y
+
+    ψ1 =
+        (1.0 - u) *
+        β *
+        v[4]
+
+    ψ2 =
+        (1.0 - u) *
+        β *
+        egt *
+        v[3]
+
+    z =
+        y -
+        (1.0 - u) *
+        (
+            egt * Y0 +
+            β * v[3] * v[4]
+        )
+
+    dv[5] =
+        ψ1 * z -
+        λ_id * v[5]
+
+    dv[6] =
+        ψ2 * z -
+        λ_id * v[6]
+
+    dv[7] =
+        ψ1^2 -
+        λ_id * v[7]
+
+    dv[8] =
+        ψ1 * ψ2 -
+        λ_id * v[8]
+
+    dv[9] =
+        ψ2 * ψ1 -
+        λ_id * v[9]
+
+    dv[10] =
+        ψ2^2 -
+        λ_id * v[10]
+
+    Δ =
+        v[7] * v[10] -
+        v[8] * v[9]
+
+    Y1 =
+        v[10] * v[5] -
+        v[8] * v[6]
+
+    Y2 =
+        -v[9] * v[5] +
+        v[7] * v[6]
+
+    dv[11] =
+        ρ_id *
+        Δ *
+        (Y1 - Δ * v[11]) /
+        (
+            abs(
+                Y1 -
+                Δ * v[11]
+            )^(1 - α_id)
+            +
+            ε_id
+        )
+
+    dv[12] =
+        ρ_id *
+        Δ *
+        (Y2 - Δ * v[12]) /
+        (
+            abs(
+                Y2 -
+                Δ * v[12]
+            )^(1 - α_id)
+            +
+            ε_id
+        )
+
+    dv[13] =
+        -u
+
+    return nothing
+end
+nothing</code></pre><h3 id="Initial-condition-and-numerical-integration"><a class="docs-heading-anchor" href="#Initial-condition-and-numerical-integration">Initial condition and numerical integration</a><a id="Initial-condition-and-numerical-integration-1"></a><a class="docs-heading-anchor-permalink" href="#Initial-condition-and-numerical-integration" title="Permalink"></a></h3><pre><code class="language-julia hljs">v0_ft =
+    zeros(13)
+
+v0_ft[1] =
+    S0
+
+v0_ft[2] =
+    I0
+
+v0_ft[11] =
+    Ŝ0_ft
+
+v0_ft[12] =
+    Î0_ft
+
+v0_ft[13] =
+    Qbudget
+    nothing</code></pre><p>Budget exhaustion is handled using</p><pre><code class="language-julia hljs">cb_budget_ft =
+    ContinuousCallback(
+        (v, t, integrator) -&gt;
+            v[13],
+
+        integrator -&gt;
+            (integrator.u[13] = 0.0)
+    )
+    nothing</code></pre><p>The system is integrated with a stiff solver:</p><pre><code class="language-julia hljs">prob_ft =
+    ODEProblem(
+        sir_drem!,
+        v0_ft,
+        (0.0, tf)
+    )
+
+sol_ft =
+    solve(
+        prob_ft,
+Tsit5();
+
+        reltol = 1e-9,
+        abstol = 1e-11,
+
+        dtmax = 0.1,
+
+        saveat = 0.05,
+
+        maxiters =
+            Int(1e7),
+
+        callback =
+            cb_budget_ft
+    )
+    nothing</code></pre><h3 id="Estimated-trajectories"><a class="docs-heading-anchor" href="#Estimated-trajectories">Estimated trajectories</a><a id="Estimated-trajectories-1"></a><a class="docs-heading-anchor-permalink" href="#Estimated-trajectories" title="Permalink"></a></h3><pre><code class="language-julia hljs">t_ft =
+    sol_ft.t
+
+S_ft =
+    sol_ft[1, :]
+
+I_ft =
+    sol_ft[2, :]
+
+C_ft =
+    sol_ft[13, :]
+
+χ1_ft =
+    sol_ft[3, :]
+
+χ2_ft =
+    sol_ft[4, :]
+
+θ1hat_ft =
+    sol_ft[11, :]
+
+θ2hat_ft =
+    sol_ft[12, :]
+    nothing</code></pre><p>The state estimates are reconstructed using</p><pre><code class="language-julia hljs">egt_v_ft =
+    exp.(
+        -γ .* t_ft
+    )
+
+Shat_ft =
+    θ1hat_ft .+
+    χ1_ft
+
+Ihat_ft =
+    χ2_ft .+
+    egt_v_ft .* θ2hat_ft
+
+Istar_ft =
+    ISTAR.(
+        θ1hat_ft,
+        θ2hat_ft
+    )
+
+u_ft =
+    ifelse.(
+        C_ft .&gt; 0.0,
+        ft_control.(
+            Shat_ft,
+            Ihat_ft,
+            Istar_ft
+        ),
+        0.0
+    )
+    nothing</code></pre><p>The estimation errors are</p><pre><code class="language-julia hljs">e_S_ft =
+    abs.(
+        S_ft .-
+        Shat_ft
+    )
+
+e_I_ft =
+    abs.(
+        I_ft .-
+        Ihat_ft
+    )
+    nothing</code></pre><h1 id="Performance-indicators"><a class="docs-heading-anchor" href="#Performance-indicators">Performance indicators</a><a id="Performance-indicators-1"></a><a class="docs-heading-anchor-permalink" href="#Performance-indicators" title="Permalink"></a></h1><p>The maximum estimation errors are computed for both observers.</p><p>For the EKF,</p><pre><code class="language-julia hljs">println(
+    &quot;EKF max |S-Ŝ| = &quot;,
+    maximum(e_S_ekf)
+)
+
+println(
+    &quot;EKF max |I-Î| = &quot;,
+    maximum(e_I_ekf)
+)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">EKF max |S-Ŝ| = 0.0830332085000356
+EKF max |I-Î| = 0.04</code></pre><p>For the finite-time observer,</p><pre><code class="language-julia hljs">max_I_ft, idx_ft =
+    findmax(I_ft)
+
+println(
+    &quot;FT max I(t) = &quot;,
+    max_I_ft,
+    &quot; at t = &quot;,
+    t_ft[idx_ft]
+)
+
+println(
+    &quot;FT max |S-Ŝ| = &quot;,
+    maximum(e_S_ft)
+)
+
+println(
+    &quot;FT max |I-Î| = &quot;,
+    maximum(e_I_ft)
+)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">FT max I(t) = 0.12159799010811016 at t = 2.25
+FT max |S-Ŝ| = 0.08000000000000007
+FT max |I-Î| = 0.04</code></pre><h3 id="Time-spent-above-the-infection-threshold"><a class="docs-heading-anchor" href="#Time-spent-above-the-infection-threshold">Time spent above the infection threshold</a><a id="Time-spent-above-the-infection-threshold-1"></a><a class="docs-heading-anchor-permalink" href="#Time-spent-above-the-infection-threshold" title="Permalink"></a></h3><p>An additional performance indicator measures how long the infection trajectory remains above <span>$I^\star$</span>.</p><pre><code class="language-julia hljs">function crossing_stats(
+    tvec,
+    Ivec,
+    thresh
+)
+
+    n =
+        length(tvec)
+
+    entry =
+        findfirst(
+            k -&gt;
+                Ivec[k] &lt;= thresh &amp;&amp;
+                Ivec[k+1] &gt; thresh,
+            1:n-1
+        )
+
+    entry === nothing &amp;&amp;
+        return (
+            nothing,
+            nothing,
+            0.0
+        )
+
+    interp(k) =
+        tvec[k] +
+        (
+            thresh -
+            Ivec[k]
+        ) *
+        (
+            tvec[k+1] -
+            tvec[k]
+        ) /
+        (
+            Ivec[k+1] -
+            Ivec[k]
+        )
+
+    t_in =
+        interp(entry)
+
+    exitidx =
+        findfirst(
+            k -&gt;
+                k &gt; entry &amp;&amp;
+                Ivec[k] &gt;= thresh &amp;&amp;
+                Ivec[k+1] &lt; thresh,
+            1:n-1
+        )
+
+    t_out =
+        exitidx === nothing ?
+        tvec[end] :
+        interp(exitidx)
+
+    return (
+        t_in,
+        t_out,
+        t_out - t_in
+    )
+end
+nothing</code></pre><p>Then,</p><pre><code class="language-julia hljs">_, _, dt_ekf =
+    crossing_stats(
+        t_ekf,
+        I_ekf,
+        Ibar
+    )
+
+_, _, dt_ft =
+    crossing_stats(
+        t_ft,
+        I_ft,
+        Ibar
+    )
+
+println(
+    &quot;EKF: I(t) above Ibar for Δt ≈ &quot;,
+    dt_ekf
+)
+
+println(
+    &quot;FT : I(t) above Ibar for Δt ≈ &quot;,
+    dt_ft
+)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">EKF: I(t) above Ibar for Δt ≈ 32.00347716751647
+FT : I(t) above Ibar for Δt ≈ 31.763227020695364</code></pre><h1 id="Closed-loop-with-the-modified-law"><a class="docs-heading-anchor" href="#Closed-loop-with-the-modified-law">Closed loop with the modified law</a><a id="Closed-loop-with-the-modified-law-1"></a><a class="docs-heading-anchor-permalink" href="#Closed-loop-with-the-modified-law" title="Permalink"></a></h1><p>Since <code>ft_control</code> and <code>nsn_control</code> dispatch on <code>CONTROL_LAW</code> at call time, the same closed-loop simulations can be repeated with the modified law simply by switching the symbol and re-solving the same problems. No other code is modified.</p><pre><code class="language-julia hljs">CONTROL_LAW = :u1_tilde
+nothing</code></pre><p>The EKF-based closed loop with <span>$\widetilde u_1$</span>:</p><pre><code class="language-julia hljs">sol_ekf_ut =
+    solve(
+        prob_ekf,
+        AutoTsit5(
+            Rosenbrock23()
+        );
+
+        dt = 1e-4,
+        dtmax = 5e-3,
+
+        reltol = 1e-6,
+        abstol = 1e-6,
+
+        saveat = 0.05,
+
+        maxiters = 10^6,
+
+        callback =
+            cb_budget_ekf
+    )
+nothing</code></pre><pre><code class="language-julia hljs">t_ekf_ut =
+    sol_ekf_ut.t
+
+S_ekf_ut =
+    [z[1] for z in sol_ekf_ut.u]
+
+I_ekf_ut =
+    [z[2] for z in sol_ekf_ut.u]
+
+Shat_ekf_ut =
+    [z[3] for z in sol_ekf_ut.u]
+
+Ihat_ekf_ut =
+    [z[4] for z in sol_ekf_ut.u]
+
+C_ekf_ut =
+    [z[9] for z in sol_ekf_ut.u]
+
+u_ekf_ut =
+    ifelse.(
+        C_ekf_ut .&gt; 0.0,
+        nsn_control.(
+            Shat_ekf_ut,
+            Ihat_ekf_ut
+        ),
+        0.0
+    )
+
+e_S_ekf_ut =
+    abs.(
+        S_ekf_ut .-
+        Shat_ekf_ut
+    )
+
+e_I_ekf_ut =
+    abs.(
+        I_ekf_ut .-
+        Ihat_ekf_ut
+    )
+    nothing</code></pre><p>The finite-time-observer-based closed loop with <span>$\widetilde u_1$</span>:</p><pre><code class="language-julia hljs">sol_ft_ut =
+    solve(
+        prob_ft,
+     Tsit5();
+
+        reltol = 1e-9,
+        abstol = 1e-11,
+
+        dtmax = 0.1,
+
+        saveat = 0.05,
+
+        maxiters =
+            Int(1e7),
+
+        callback =
+            cb_budget_ft
+    )
+nothing</code></pre><pre><code class="language-julia hljs">t_ft_ut =
+    sol_ft_ut.t
+
+S_ft_ut =
+    sol_ft_ut[1, :]
+
+I_ft_ut =
+    sol_ft_ut[2, :]
+
+C_ft_ut =
+    sol_ft_ut[13, :]
+
+χ1_ft_ut =
+    sol_ft_ut[3, :]
+
+χ2_ft_ut =
+    sol_ft_ut[4, :]
+
+θ1hat_ft_ut =
+    sol_ft_ut[11, :]
+
+θ2hat_ft_ut =
+    sol_ft_ut[12, :]
+
+egt_v_ft_ut =
+    exp.(
+        -γ .* t_ft_ut
+    )
+
+Shat_ft_ut =
+    θ1hat_ft_ut .+
+    χ1_ft_ut
+
+Ihat_ft_ut =
+    χ2_ft_ut .+
+    egt_v_ft_ut .* θ2hat_ft_ut
+
+Istar_ft_ut =
+    ISTAR.(
+        θ1hat_ft_ut,
+        θ2hat_ft_ut
+    )
+
+u_ft_ut =
+    ifelse.(
+        C_ft_ut .&gt; 0.0,
+        ft_control.(
+            Shat_ft_ut,
+            Ihat_ft_ut,
+            Istar_ft_ut
+        ),
+        0.0
+    )
+
+e_S_ft_ut =
+    abs.(
+        S_ft_ut .-
+        Shat_ft_ut
+    )
+
+e_I_ft_ut =
+    abs.(
+        I_ft_ut .-
+        Ihat_ft_ut
+    )
+    nothing</code></pre><p>Performance indicators for the modified law:</p><pre><code class="language-julia hljs">println(
+    &quot;EKF[u1_tilde] max |S-Ŝ| = &quot;,
+    maximum(e_S_ekf_ut)
+)
+
+println(
+    &quot;EKF[u1_tilde] max |I-Î| = &quot;,
+    maximum(e_I_ekf_ut)
+)
+
+max_I_ft_ut, idx_ft_ut =
+    findmax(I_ft_ut)
+
+println(
+    &quot;FT[u1_tilde] max I(t) = &quot;,
+    max_I_ft_ut,
+    &quot; at t = &quot;,
+    t_ft_ut[idx_ft_ut]
+)
+
+println(
+    &quot;FT[u1_tilde] max |S-Ŝ| = &quot;,
+    maximum(e_S_ft_ut)
+)
+
+println(
+    &quot;FT[u1_tilde] max |I-Î| = &quot;,
+    maximum(e_I_ft_ut)
+)
+
+_, _, dt_ekf_ut =
+    crossing_stats(
+        t_ekf_ut,
+        I_ekf_ut,
+        Ibar
+    )
+
+_, _, dt_ft_ut =
+    crossing_stats(
+        t_ft_ut,
+        I_ft_ut,
+        Ibar
+    )
+
+println(
+    &quot;EKF[u1_tilde]: I(t) above Ibar for Δt ≈ &quot;,
+    dt_ekf_ut
+)
+
+println(
+    &quot;FT[u1_tilde]: I(t) above Ibar for Δt ≈ &quot;,
+    dt_ft_ut
+)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">EKF[u1_tilde] max |S-Ŝ| = 0.0813406124662811
+EKF[u1_tilde] max |I-Î| = 0.04
+FT[u1_tilde] max I(t) = 0.12159792520326436 at t = 2.25
+FT[u1_tilde] max |S-Ŝ| = 0.08000000000000007
+FT[u1_tilde] max |I-Î| = 0.04
+EKF[u1_tilde]: I(t) above Ibar for Δt ≈ 23.253410004897017
+FT[u1_tilde]: I(t) above Ibar for Δt ≈ 30.82409928254359</code></pre><h1 id="Numerical-comparison"><a class="docs-heading-anchor" href="#Numerical-comparison">Numerical comparison</a><a id="Numerical-comparison-1"></a><a class="docs-heading-anchor-permalink" href="#Numerical-comparison" title="Permalink"></a></h1><p>The following plots compare</p><ol><li>the susceptible population,</li><li>the infected population,</li><li>the feedback control,</li><li>the remaining intervention budget.</li></ol><p>The reference trajectory is shown together with the EKF-based and finite-time-observer-based closed-loop trajectories.</p><pre><code class="language-julia hljs">COLOR_REF =
+    :black
+
+COLOR_EKF =
+    RGB(
+        0.14,
+        0.44,
+        0.64
+    )
+
+COLOR_FT =
+    RGB(
+        0.75,
+        0.22,
+        0.17
+    )
+
+COLOR_SH =
+    RGB(
+        0.15,
+        0.68,
+        0.38
+    )
+    nothing</code></pre><p>Common plotting options are</p><pre><code class="language-julia hljs">common = (
+    guidefontsize = 13,
+    tickfontsize = 10,
+    legendfontsize = 12,
+    framestyle = :box,
+    grid = false,
+    xticks = 0:10:tf,
+    xlims = (0, tf),
+    left_margin = 0Plots.mm,
+    right_margin = 1Plots.mm,
+    dpi = 500
+)
+nothing</code></pre><h3 id="Susceptible-population"><a class="docs-heading-anchor" href="#Susceptible-population">Susceptible population</a><a id="Susceptible-population-1"></a><a class="docs-heading-anchor-permalink" href="#Susceptible-population" title="Permalink"></a></h3><pre><code class="language-julia hljs">pS =
+    plot(
+        t_ref,
+        S_ref;
+
+        lw = 3.0,
+        color = COLOR_REF,
+
+        label =
+            L&quot;S_{\mathrm{ref}}&quot;,
+
+        legend = :topright,
+        legend_column = 3,
+
+        top_margin =
+            3Plots.mm,
+
+        bottom_margin =
+            1Plots.mm,
+
+        common...
+    )
+
+plot!(
+    pS,
+    t_ekf,
+    S_ekf;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :solid,
+
+    label =
+        L&quot;S_{\mathrm{EKF,true}}&quot;
+)
+
+plot!(
+    pS,
+    t_ekf,
+    Shat_ekf;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :dot,
+
+    label =
+        L&quot;\hat S_{\mathrm{EKF}}&quot;
+)
+
+plot!(
+    pS,
+    t_ft,
+    S_ft;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :solid,
+
+    label =
+        L&quot;S_{\mathrm{FT,true}}&quot;
+)
+
+plot!(
+    pS,
+    t_ft,
+    Shat_ft;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :dot,
+
+    label =
+        L&quot;\hat S_{\mathrm{FT}}&quot;
+)
+
+hline!(
+    pS,
+    [Sh];
+
+    lw = 1.2,
+    color = COLOR_SH,
+    ls = :dashdot,
+
+    label =
+        L&quot;S_h&quot;
+)</code></pre><img src="c3f681f5.svg" alt="Example block output"/><h3 id="Infected-population"><a class="docs-heading-anchor" href="#Infected-population">Infected population</a><a id="Infected-population-1"></a><a class="docs-heading-anchor-permalink" href="#Infected-population" title="Permalink"></a></h3><pre><code class="language-julia hljs">pI =
+    plot(
+        t_ref,
+        I_ref;
+
+        lw = 3.0,
+        color = COLOR_REF,
+
+        label =
+            L&quot;I_{\mathrm{ref}}&quot;,
+
+        legend = :topright,
+        legend_column = 3,
+
+        top_margin =
+            1Plots.mm,
+
+        bottom_margin =
+            1Plots.mm,
+
+        common...
+    )
+
+plot!(
+    pI,
+    t_ekf,
+    I_ekf;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :solid,
+
+    label =
+        L&quot;I_{\mathrm{EKF,true}}&quot;
+)
+
+plot!(
+    pI,
+    t_ekf,
+    Ihat_ekf;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :dot,
+
+    label =
+        L&quot;\hat I_{\mathrm{EKF}}&quot;
+)
+
+plot!(
+    pI,
+    t_ft,
+    I_ft;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :solid,
+
+    label =
+        L&quot;I_{\mathrm{FT,true}}&quot;
+)
+
+plot!(
+    pI,
+    t_ft,
+    Ihat_ft;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :dot,
+
+    label =
+        L&quot;\hat I_{\mathrm{FT}}&quot;
+)
+
+hline!(
+    pI,
+    [Ibar];
+
+    lw = 1.2,
+    color = COLOR_SH,
+    ls = :dashdot,
+
+    label =
+        L&quot;\bar I^{\star}&quot;
+)</code></pre><img src="7208b0f7.svg" alt="Example block output"/><h3 id="Control"><a class="docs-heading-anchor" href="#Control">Control</a><a id="Control-1"></a><a class="docs-heading-anchor-permalink" href="#Control" title="Permalink"></a></h3><pre><code class="language-julia hljs">pU =
+    plot(
+        t_ref,
+        u_ref;
+
+        lw = 3.0,
+        color = COLOR_REF,
+
+        label =
+            L&quot;u_{\mathrm{ref}}&quot;,
+
+        ylims =
+            (-0.02, 1.02),
+
+        legend =
+            :topright,
+
+        top_margin =
+            1Plots.mm,
+
+        bottom_margin =
+            1Plots.mm,
+
+        common...
+    )
+
+plot!(
+    pU,
+    t_ekf,
+    u_ekf;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :solid,
+
+    label =
+        L&quot;u_{\mathrm{EKF}}&quot;
+)
+
+plot!(
+    pU,
+    t_ft,
+    u_ft;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :solid,
+
+    label =
+        L&quot;u_{\mathrm{FT}}&quot;
+)</code></pre><img src="be27ebd5.svg" alt="Example block output"/><h3 id="Remaining-budget"><a class="docs-heading-anchor" href="#Remaining-budget">Remaining budget</a><a id="Remaining-budget-1"></a><a class="docs-heading-anchor-permalink" href="#Remaining-budget" title="Permalink"></a></h3><pre><code class="language-julia hljs">pC =
+    plot(
+        t_ref,
+        C_ref;
+
+        lw = 3.0,
+        color = COLOR_REF,
+
+        label =
+            L&quot;C_{\mathrm{ref}}&quot;,
+
+        xlabel =
+            L&quot;t&quot;,
+
+        ylims =
+            (-0.5, Qbudget + 1),
+
+        legend =
+            :topright,
+
+        top_margin =
+            1Plots.mm,
+
+        bottom_margin =
+            4Plots.mm,
+
+        common...
+    )
+
+plot!(
+    pC,
+    t_ekf,
+    C_ekf;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :solid,
+
+    label =
+        L&quot;C_{\mathrm{EKF}}&quot;
+)
+
+plot!(
+    pC,
+    t_ft,
+    C_ft;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :solid,
+
+    label =
+        L&quot;C_{\mathrm{FT}}&quot;
+)
+
+hline!(
+    pC,
+    [0.0];
+
+    lw = 1.0,
+    color = :gray,
+    ls = :dot,
+
+    label =
+        false
+)</code></pre><img src="d97c030c.svg" alt="Example block output"/><h3 id="Modified-feedback-trajectories"><a class="docs-heading-anchor" href="#Modified-feedback-trajectories">Modified feedback trajectories</a><a id="Modified-feedback-trajectories-1"></a><a class="docs-heading-anchor-permalink" href="#Modified-feedback-trajectories" title="Permalink"></a></h3><p>The closed-loop trajectories obtained with <span>$\widetilde u_1$</span> are added to the same panels using dashed line styles.</p><pre><code class="language-julia hljs">plot!(
+    pS,
+    t_ekf_ut,
+    S_ekf_ut;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :dash,
+
+    label =
+        L&quot;S_{\mathrm{EKF,true},\widetilde u_1}&quot;
+)
+
+plot!(
+    pS,
+    t_ekf_ut,
+    Shat_ekf_ut;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :dashdot,
+
+    label =
+        L&quot;\hat S_{\mathrm{EKF},\widetilde u_1}&quot;
+)
+
+plot!(
+    pS,
+    t_ft_ut,
+    S_ft_ut;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :dash,
+
+    label =
+        L&quot;S_{\mathrm{FT,true},\widetilde u_1}&quot;
+)
+
+plot!(
+    pS,
+    t_ft_ut,
+    Shat_ft_ut;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :dashdot,
+
+    label =
+        L&quot;\hat S_{\mathrm{FT},\widetilde u_1}&quot;
+)</code></pre><img src="80b10426.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot!(
+    pI,
+    t_ekf_ut,
+    I_ekf_ut;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :dash,
+
+    label =
+        L&quot;I_{\mathrm{EKF,true},\widetilde u_1}&quot;
+)
+
+plot!(
+    pI,
+    t_ekf_ut,
+    Ihat_ekf_ut;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :dashdot,
+
+    label =
+        L&quot;\hat I_{\mathrm{EKF},\widetilde u_1}&quot;
+)
+
+plot!(
+    pI,
+    t_ft_ut,
+    I_ft_ut;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :dash,
+
+    label =
+        L&quot;I_{\mathrm{FT,true},\widetilde u_1}&quot;
+)
+
+plot!(
+    pI,
+    t_ft_ut,
+    Ihat_ft_ut;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :dashdot,
+
+    label =
+        L&quot;\hat I_{\mathrm{FT},\widetilde u_1}&quot;
+)</code></pre><img src="240e1907.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot!(
+    pU,
+    t_ekf_ut,
+    u_ekf_ut;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :dash,
+
+    label =
+        L&quot;u_{\mathrm{EKF},\widetilde u_1}&quot;
+)
+
+plot!(
+    pU,
+    t_ft_ut,
+    u_ft_ut;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :dash,
+
+    label =
+        L&quot;u_{\mathrm{FT},\widetilde u_1}&quot;
+)</code></pre><img src="2038de1f.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot!(
+    pC,
+    t_ekf_ut,
+    C_ekf_ut;
+
+    lw = 2.0,
+    color = COLOR_EKF,
+    ls = :dash,
+
+    label =
+        L&quot;C_{\mathrm{EKF},\widetilde u_1}&quot;
+)
+
+plot!(
+    pC,
+    t_ft_ut,
+    C_ft_ut;
+
+    lw = 2.0,
+    color = COLOR_FT,
+    ls = :dash,
+
+    label =
+        L&quot;C_{\mathrm{FT},\widetilde u_1}&quot;
+)</code></pre><img src="e8091427.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../feedback2/">Feedback 2 »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 19 August 2026 15:46">Wednesday 19 August 2026</span>. Using Julia version 1.12.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
