@@ -1281,7 +1281,7 @@ hline!(
 
     label =
         L&quot;S_h&quot;
-)</code></pre><img src="00139080.svg" alt="Example block output"/><h3 id="Infected-population"><a class="docs-heading-anchor" href="#Infected-population">Infected population</a><a id="Infected-population-1"></a><a class="docs-heading-anchor-permalink" href="#Infected-population" title="Permalink"></a></h3><pre><code class="language-julia hljs">pI =
+)</code></pre><img src="16805bb9.svg" alt="Example block output"/><h3 id="Infected-population"><a class="docs-heading-anchor" href="#Infected-population">Infected population</a><a id="Infected-population-1"></a><a class="docs-heading-anchor-permalink" href="#Infected-population" title="Permalink"></a></h3><pre><code class="language-julia hljs">pI =
     plot(
         t_ref,
         I_ref;
@@ -1366,7 +1366,7 @@ hline!(
 
     label =
         L&quot;\bar I^{\star}&quot;
-)</code></pre><img src="5c76157f.svg" alt="Example block output"/><h3 id="Control"><a class="docs-heading-anchor" href="#Control">Control</a><a id="Control-1"></a><a class="docs-heading-anchor-permalink" href="#Control" title="Permalink"></a></h3><pre><code class="language-julia hljs">pU =
+)</code></pre><img src="01bac196.svg" alt="Example block output"/><h3 id="Control"><a class="docs-heading-anchor" href="#Control">Control</a><a id="Control-1"></a><a class="docs-heading-anchor-permalink" href="#Control" title="Permalink"></a></h3><pre><code class="language-julia hljs">pU =
     plot(
         t_ref,
         u_ref;
@@ -1416,7 +1416,7 @@ plot!(
 
     label =
         L&quot;u_{\mathrm{FT}}&quot;
-)</code></pre><img src="44f03b62.svg" alt="Example block output"/><h3 id="Remaining-budget"><a class="docs-heading-anchor" href="#Remaining-budget">Remaining budget</a><a id="Remaining-budget-1"></a><a class="docs-heading-anchor-permalink" href="#Remaining-budget" title="Permalink"></a></h3><pre><code class="language-julia hljs">pC =
+)</code></pre><img src="36b14660.svg" alt="Example block output"/><h3 id="Remaining-budget"><a class="docs-heading-anchor" href="#Remaining-budget">Remaining budget</a><a id="Remaining-budget-1"></a><a class="docs-heading-anchor-permalink" href="#Remaining-budget" title="Permalink"></a></h3><pre><code class="language-julia hljs">pC =
     plot(
         t_ref,
         C_ref;
@@ -1481,7 +1481,7 @@ hline!(
 
     label =
         false
-)</code></pre><img src="e67e2e71.svg" alt="Example block output"/><h3 id="Modified-feedback-trajectories"><a class="docs-heading-anchor" href="#Modified-feedback-trajectories">Modified feedback trajectories</a><a id="Modified-feedback-trajectories-1"></a><a class="docs-heading-anchor-permalink" href="#Modified-feedback-trajectories" title="Permalink"></a></h3><p>The closed-loop trajectories obtained with <span>$\widetilde u_1$</span> are added to the same panels using dashed line styles.</p><pre><code class="language-julia hljs">plot!(
+)</code></pre><img src="042e1fec.svg" alt="Example block output"/><h3 id="Modified-feedback-trajectories"><a class="docs-heading-anchor" href="#Modified-feedback-trajectories">Modified feedback trajectories</a><a id="Modified-feedback-trajectories-1"></a><a class="docs-heading-anchor-permalink" href="#Modified-feedback-trajectories" title="Permalink"></a></h3><p>The closed-loop trajectories obtained with <span>$\widetilde u_1$</span> are added to the same panels using dashed line styles.</p><pre><code class="language-julia hljs">plot!(
     pS,
     t_ekf_ut,
     S_ekf_ut;
@@ -1531,7 +1531,7 @@ plot!(
 
     label =
         L&quot;\hat S_{\mathrm{FT},\widetilde u_1}&quot;
-)</code></pre><img src="2f41c5b8.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot!(
+)</code></pre><img src="9ee81ca4.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot!(
     pI,
     t_ekf_ut,
     I_ekf_ut;
@@ -1581,7 +1581,7 @@ plot!(
 
     label =
         L&quot;\hat I_{\mathrm{FT},\widetilde u_1}&quot;
-)</code></pre><img src="9bf7280b.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot!(
+)</code></pre><img src="f4797211.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot!(
     pU,
     t_ekf_ut,
     u_ekf_ut;
@@ -1605,7 +1605,7 @@ plot!(
 
     label =
         L&quot;u_{\mathrm{FT},\widetilde u_1}&quot;
-)</code></pre><img src="a2593778.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot!(
+)</code></pre><img src="58b2e879.svg" alt="Example block output"/><pre><code class="language-julia hljs">plot!(
     pC,
     t_ekf_ut,
     C_ekf_ut;
@@ -1629,4 +1629,4 @@ plot!(
 
     label =
         L&quot;C_{\mathrm{FT},\widetilde u_1}&quot;
-)</code></pre><img src="7b21c7b6.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../feedback2/">Feedback 2 »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 19 August 2026 15:35">Wednesday 19 August 2026</span>. Using Julia version 1.12.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+)</code></pre><img src="bfee5192.svg" alt="Example block output"/></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../feedback2/">Feedback 2 »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option><option value="catppuccin-latte">catppuccin-latte</option><option value="catppuccin-frappe">catppuccin-frappe</option><option value="catppuccin-macchiato">catppuccin-macchiato</option><option value="catppuccin-mocha">catppuccin-mocha</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.17.0 on <span class="colophon-date" title="Wednesday 19 August 2026 15:59">Wednesday 19 August 2026</span>. Using Julia version 1.12.7.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
