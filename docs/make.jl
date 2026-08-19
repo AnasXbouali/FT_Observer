@@ -11,3 +11,7 @@ makedocs(
         "Feedback 3" => "feedback3.md",
     ],
 )
+deploydocs(
+    repo = "github.com/AnasXbouali/FT_Observer.git",
+    devbranch = "main",
+)
