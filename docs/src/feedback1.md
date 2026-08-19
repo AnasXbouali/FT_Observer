@@ -14,6 +14,7 @@ using Colors
 include("common.jl")
 
 default(fontfamily = "Computer Modern", framestyle = :box)
+```
 
 ```@example sir1
 β       = 0.8
