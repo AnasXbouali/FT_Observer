@@ -2,7 +2,7 @@
 
 
 
-```@example sir
+```@example sir1
 using DifferentialEquations
 using OrdinaryDiffEq
 using LinearAlgebra
@@ -15,7 +15,7 @@ include("common.jl")
 
 default(fontfamily = "Computer Modern", framestyle = :box)
 
-```@example sir
+```@example sir1
 β       = 0.8
 γ       = 0.2
 S0      = 0.92
