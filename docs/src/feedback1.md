@@ -4,14 +4,16 @@
 
 ```@example sir
 using DifferentialEquations
+using OrdinaryDiffEq
 using LinearAlgebra
 using Random
 using Plots
 using LaTeXStrings
 using Colors
 
+include("common.jl")
+
 default(fontfamily = "Computer Modern", framestyle = :box)
-```
 
 ```@example sir
 β       = 0.8
