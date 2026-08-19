@@ -3,11 +3,14 @@
 
 ```@example sir2
 using DifferentialEquations
+using OrdinaryDiffEq
 using LinearAlgebra
 using Random
 using Plots
 using LaTeXStrings
 using Colors
+
+include("common.jl")
 
 default(fontfamily = "Computer Modern", framestyle = :box)
 ```
