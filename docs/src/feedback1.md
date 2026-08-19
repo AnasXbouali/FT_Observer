@@ -32,7 +32,7 @@ The herd-immunity threshold is
 S_h=\frac{\gamma}{\beta}.
 ```
 
-```@example sir
+```@example sir1
 Sh = γ / β
 ```
 
@@ -74,7 +74,7 @@ Q\geq Q_{\mathrm{crit}}.
 ```
 
 
-```@example sir
+```@example sir1
 function ISTAR(θ̂1::Real, θ̂2::Real)
     Ih = θ̂2 + θ̂1 - Sh - Sh * log(θ̂1 / Sh)
 
@@ -125,7 +125,7 @@ The second feedback is a modified version with an additional multiplicative term
 The additional term $I^*/\hat I$ in $\widetilde u_1$ amplifies the control value when $\hat I$ exceeds the threshold, forcing the infected trajectory to remain closer to the optimal level $I^*(S_0,I_0,Q)$ while consuming more budget.
 
 
-```@example sir
+```@example sir1
 safe_ = 1e-10
 
 @inline incidence(S, I, u) =
@@ -138,7 +138,7 @@ Possible values for `CONTROL_LAW`:
 - `:u1`
 - `:u1_tilde`
 
-```@example sir
+```@example sir1
 u1_exact(Ŝ, Î, Istar) =
     (Ŝ ≤ Sh || Î < Istar) ?
     0.0 :
@@ -173,7 +173,7 @@ We introduce
 ```
 
 
-```@example sir
+```@example sir1
 ϵcontrol = 1e-6
 
 @inline function sigmoid_stable(z, ϵ)
@@ -193,7 +193,7 @@ nothing
 
 For $u_1$,
 
-```@example sir
+```@example sir1
 function nsn_u1(Ŝ, Î)
 
     Ssafe = max(Ŝ, safe_)
@@ -221,7 +221,7 @@ nothing
 
 For $\widetilde u_1$,
 
-```@example sir
+```@example sir1
 function nsn_u1_tilde(Ŝ, Î)
 
     Ssafe = max(Ŝ, safe_)
@@ -277,7 +277,7 @@ The system therefore evolves according to
 
 until the infection reaches the prescribed level $I^\star$.
 
-```@example sir
+```@example sir1
 tgrid = 0.0:0.05:tf
 
 cb1 =
@@ -330,7 +330,7 @@ The budget variable satisfies
 The intervention ends either when the budget is exhausted or when
 $S=S_h$.
 
-```@example sir
+```@example sir1
 cb2_C =
     ContinuousCallback(
         (v, t, integrator) -> v[3],
@@ -386,7 +386,7 @@ u(t)=0
 
 again.
 
-```@example sir
+```@example sir1
 sol3 = solve(
     ODEProblem(
         (dv, v, p, t) -> begin
@@ -412,7 +412,7 @@ nothing
 
 The three phases are concatenated as follows:
 
-```@example sir
+```@example sir1
 t_ref = [
     sol1.t;
     sol2.t[2:end];
@@ -499,7 +499,7 @@ Q.
 
 ### EKF parameters
 
-```@example sir
+```@example sir1
 R =
     1e-4
 
@@ -530,7 +530,7 @@ meas_noise_amp =
 A deterministic multi-frequency signal is used to generate the
 measurement perturbation.
 
-```@example sir
+```@example sir1
 const NOISE_W =
     (
         0.17,
@@ -589,7 +589,7 @@ y(t)
 
 ### EKF dynamics
 
-```@example sir
+```@example sir1
 function ekf_rhs!(dz, z, _, t)
 
     S =
@@ -709,7 +709,7 @@ nothing
 
 The intervention is disabled after budget exhaustion:
 
-```@example sir
+```@example sir1
 cb_budget_ekf =
     ContinuousCallback(
         (z, t, integrator) ->
@@ -723,7 +723,7 @@ cb_budget_ekf =
 
 The complete EKF simulation is
 
-```@example sir
+```@example sir1
 z0_ekf = [
     S0,
     I0,
@@ -765,7 +765,7 @@ sol_ekf =
 
 The resulting trajectories are extracted using
 
-```@example sir
+```@example sir1
 t_ekf =
     sol_ekf.t
 
@@ -833,7 +833,7 @@ e^{-\gamma t}
 
 ## FT Observer parameters
 
-```@example sir
+```@example sir1
 λ_id = 1e-4
 
 ρ_id = 1e6
@@ -898,7 +898,7 @@ Y_i-\Delta\hat\theta_i
 
 The complete implementation is
 
-```@example sir
+```@example sir1
 function sir_drem!(dv, v, p, t)
 
     egt =
@@ -1041,7 +1041,7 @@ nothing
 
 ### Initial condition and numerical integration
 
-```@example sir
+```@example sir1
 v0_ft =
     zeros(13)
 
@@ -1064,7 +1064,7 @@ v0_ft[13] =
 
 Budget exhaustion is handled using
 
-```@example sir
+```@example sir1
 cb_budget_ft =
     ContinuousCallback(
         (v, t, integrator) ->
@@ -1078,7 +1078,7 @@ cb_budget_ft =
 
 The system is integrated with a stiff solver:
 
-```@example sir
+```@example sir1
 prob_ft =
     ODEProblem(
         sir_drem!,
@@ -1109,7 +1109,7 @@ Tsit5();
 
 ### Estimated trajectories
 
-```@example sir
+```@example sir1
 t_ft =
     sol_ft.t
 
@@ -1138,7 +1138,7 @@ C_ft =
 
 The state estimates are reconstructed using
 
-```@example sir
+```@example sir1
 egt_v_ft =
     exp.(
         -γ .* t_ft
@@ -1173,7 +1173,7 @@ u_ft =
 
 The estimation errors are
 
-```@example sir
+```@example sir1
 e_S_ft =
     abs.(
         S_ft .-
@@ -1194,7 +1194,7 @@ The maximum estimation errors are computed for both observers.
 
 For the EKF,
 
-```@example sir
+```@example sir1
 println(
     "EKF max |S-Ŝ| = ",
     maximum(e_S_ekf)
@@ -1208,7 +1208,7 @@ println(
 
 For the finite-time observer,
 
-```@example sir
+```@example sir1
 max_I_ft, idx_ft =
     findmax(I_ft)
 
@@ -1235,7 +1235,7 @@ println(
 An additional performance indicator measures how long the infection
 trajectory remains above $I^\star$.
 
-```@example sir
+```@example sir1
 function crossing_stats(
     tvec,
     Ivec,
@@ -1303,7 +1303,7 @@ nothing
 
 Then,
 
-```@example sir
+```@example sir1
 _, _, dt_ekf =
     crossing_stats(
         t_ekf,
@@ -1336,14 +1336,14 @@ time, the same closed-loop simulations can be repeated with the
 modified law simply by switching the symbol and re-solving the same
 problems. No other code is modified.
 
-```@example sir
+```@example sir1
 CONTROL_LAW = :u1_tilde
 nothing
 ```
 
 The EKF-based closed loop with $\widetilde u_1$:
 
-```@example sir
+```@example sir1
 sol_ekf_ut =
     solve(
         prob_ekf,
@@ -1367,7 +1367,7 @@ sol_ekf_ut =
 nothing
 ```
 
-```@example sir
+```@example sir1
 t_ekf_ut =
     sol_ekf_ut.t
 
@@ -1412,7 +1412,7 @@ e_I_ekf_ut =
 
 The finite-time-observer-based closed loop with $\widetilde u_1$:
 
-```@example sir
+```@example sir1
 sol_ft_ut =
     solve(
         prob_ft,
@@ -1434,7 +1434,7 @@ sol_ft_ut =
 nothing
 ```
 
-```@example sir
+```@example sir1
 t_ft_ut =
     sol_ft_ut.t
 
@@ -1505,7 +1505,7 @@ e_I_ft_ut =
 
 Performance indicators for the modified law:
 
-```@example sir
+```@example sir1
 println(
     "EKF[u1_tilde] max |S-Ŝ| = ",
     maximum(e_S_ekf_ut)
@@ -1573,7 +1573,7 @@ The following plots compare
 The reference trajectory is shown together with the EKF-based and
 finite-time-observer-based closed-loop trajectories.
 
-```@example sir
+```@example sir1
 COLOR_REF =
     :black
 
@@ -1602,7 +1602,7 @@ COLOR_SH =
 
 Common plotting options are
 
-```@example sir
+```@example sir1
 common = (
     guidefontsize = 13,
     tickfontsize = 10,
@@ -1620,7 +1620,7 @@ nothing
 
 ### Susceptible population
 
-```@example sir
+```@example sir1
 pS =
     plot(
         t_ref,
@@ -1711,7 +1711,7 @@ hline!(
 
 ### Infected population
 
-```@example sir
+```@example sir1
 pI =
     plot(
         t_ref,
@@ -1802,7 +1802,7 @@ hline!(
 
 ### Control
 
-```@example sir
+```@example sir1
 pU =
     plot(
         t_ref,
@@ -1858,7 +1858,7 @@ plot!(
 
 ### Remaining budget
 
-```@example sir
+```@example sir1
 pC =
     plot(
         t_ref,
@@ -1932,7 +1932,7 @@ hline!(
 The closed-loop trajectories obtained with $\widetilde u_1$ are added
 to the same panels using dashed line styles.
 
-```@example sir
+```@example sir1
 plot!(
     pS,
     t_ekf_ut,
@@ -1986,7 +1986,7 @@ plot!(
 )
 ```
 
-```@example sir
+```@example sir1
 plot!(
     pI,
     t_ekf_ut,
@@ -2040,7 +2040,7 @@ plot!(
 )
 ```
 
-```@example sir
+```@example sir1
 plot!(
     pU,
     t_ekf_ut,
@@ -2068,7 +2068,7 @@ plot!(
 )
 ```
 
-```@example sir
+```@example sir1
 plot!(
     pC,
     t_ekf_ut,
